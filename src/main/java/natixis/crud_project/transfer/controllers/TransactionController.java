@@ -47,4 +47,32 @@ public class TransactionController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionResponse> update(
+            @PathVariable Long id,
+            @RequestBody @Valid TransactionRequest request) {
+
+        Transaction entity = TransactionMapper.toEntity(request);
+        Transaction updated = service.update(id, entity);
+
+        if (updated == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(TransactionMapper.toResponse(updated));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+
+        boolean removed = service.delete(id);
+
+        if (!removed) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

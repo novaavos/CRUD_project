@@ -39,4 +39,33 @@ public class TransactionService {
     public Optional<Transaction> findById(Long id) {
         return repo.findById(id);
     }
+
+    public Transaction update(Long id, Transaction updated) {
+
+        return repo.findById(id).map(existing -> {
+
+            existing.setOriginAccount(updated.getOriginAccount());
+            existing.setDestinationAccount(updated.getDestinationAccount());
+            existing.setAmount(updated.getAmount());
+            existing.setScheduledDate(updated.getScheduledDate());
+
+            // recalcular fee
+            existing.setFee(
+                    TaxCalculator.calculateFee(existing.getAmount(), existing.getScheduledDate())
+            );
+
+            return repo.save(existing);
+
+        }).orElse(null);
+    }
+
+    public boolean delete(Long id) {
+        if (!repo.existsById(id)) {
+            return false;
+        }
+        repo.deleteById(id);
+        return true;
+    }
+
+
 }
